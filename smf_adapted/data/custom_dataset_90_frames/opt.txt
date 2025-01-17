@@ -1,0 +1,14 @@
+------------ Options -------------
+data_root: /mnt/e/Studium/Master/Masterarbeit/datasets/custom_dataset_90_frames/
+dataset_name: custom_dataset_90_frames
+name: custom_dataset_90_frames
+num_rotated_frames_threshold: 30
+max_motion_length: 90
+min_motion_length: 90
+num_vertices: 5023
+d_random: 64
+load_mode: memory
+no_talking: False
+no_cuts: False
+no_turned_desc: True
+-------------- End ----------------

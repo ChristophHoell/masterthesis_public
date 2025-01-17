@@ -1,0 +1,3 @@
+A person is talking.
+A person is frowning.
+A person is talking, then smiling while talking.

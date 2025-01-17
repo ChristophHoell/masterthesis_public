@@ -1,0 +1,13 @@
+------------ Options -------------
+data_root: /mnt/e/Studium/Master/Masterarbeit/datasets/custom_dataset/
+dataset_name: custom_dataset
+name: custom_dataset
+num_rotated_frames_threshold: 10
+max_seq_len: 300
+min_seq_len: 150
+num_vertices: 5023
+d_random: 64
+load_mode: disk
+no_talking: False
+no_cuts: False
+-------------- End ----------------

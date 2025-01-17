@@ -1,0 +1,35 @@
+A person is talking.
+A person is wagging his head.
+A person is looking around.
+A person is shaking his head.
+A person is nodding.
+A person is blinking.
+A person is winking.
+A person is squinting.
+A person is closing his eyes.
+A person is drinking.
+A person is singing.
+A person is eating.
+A person is smoking.
+A person is listening to music.
+A person is playing an instrument.
+A person is reading.
+A person is kissing.
+A person is whispering.
+A person is sneering.
+A person is frowning.
+A person is weeping.
+A person is crying.
+A person is smiling.
+A person is glaring.
+A person is gazing.
+A person is laughing.
+A person is shouting.
+A person is yawning.
+A person is sneezing.
+A person is coughing.
+A person is sleeping.
+A person is making a face.
+A person is blowing.
+A person is sniffing.
+A person is chewing.
