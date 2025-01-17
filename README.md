@@ -22,12 +22,15 @@ python -m pip install git+https://github.com/openai/CLIP.git
 Our Proposed method is a Transformer cVQVAE with the goal of generating a 3D facial animation solely from a textual description.
 
 ![A person is kissing.](https://github.com/ChristophHoell/masterthesis_public/blob/main/assets/kissing.gif)
+"A person is kissing."
 ![A person is sneering.](https://github.com/ChristophHoell/masterthesis_public/blob/main/assets/sneering.gif)
+"A person is sneering."
 
 We demonstrate that our method is capable of generating realistic facial motions from a textual description while maintaining good sequential coherence.
 
 
 ![A person is yawning.](https://github.com/ChristophHoell/masterthesis_public/blob/main/assets/yawning_diversity.gif)
+"A person is yawning."
 
 We also demonstrate the non-deterministic behavior of our model with regards to the diversity in output for the same prompt.
 
