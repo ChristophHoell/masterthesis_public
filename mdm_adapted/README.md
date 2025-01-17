@@ -1,4 +1,15 @@
-# MDM: Human Motion Diffusion Model
+# MDM: Human Motion Diffusion Model (Adapted)
+This folder contains the Human Motion Diffusion Model (MDM) project slightly adapted to the facial domain.
+To run this project, please update the following files to your needs:
+```
+./data/dataset/opt.txt
+```
+It is necessary here to update the path defined in ``data_root`` to the location of the dataset.
+
+Otherwise the model can be trained and sampled as defined below in the original.
+
+
+# MDM: Human Motion Diffusion Model (Original)
 
 
 [![arXiv](https://img.shields.io/badge/arXiv-<2209.14916>-<COLOR>.svg)](https://arxiv.org/abs/2209.14916)

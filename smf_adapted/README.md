@@ -1,3 +1,11 @@
+# Stable MoFusion (Adapted)
+To run this project on the facial domain, please update the ``data_root`` variable in 
+```
+./data/datasets/dataset/opt.txt
+```
+Afterwards the project can be run as defined below.
+
+
 # StableMoFusion: Towards Robust and Efficient Diffusion-based Motion Generation Framework
 
 <!-- [![Project Page](https://img.shields.io/badge/Project_Page-<xxx>-<COLOR>.svg)](https://h-y1heng.github.io/StableMoFusion-page/)

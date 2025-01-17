@@ -1,5 +1,11 @@
 # masterthesis
 
+## Project Structure:
+
+1. ``Proposed Method`` Final Version of the Thesis implementation
+2. ``MDM Adapted`` Implementation of the Human Motion Diffusion Model adapted to the facial domain
+3. ``SMF Adapted`` Implementation of the Stable MoFusion Project adapted to the facial domain
+
 ## Environment Setup:
 
 Install the conda environment with the following command:
@@ -12,3 +18,15 @@ In case the CLIP language model is not installed correctly through conda, instal
 python -m pip install git+https://github.com/openai/CLIP.git
 ```
 
+## Proposed Method:
+Our Proposed method is a Transformer cVQVAE with the goal of generating a 3D facial animation solely from a textual description.
+
+![A person is kissing.](https://github.com/ChristophHoell/masterthesis_public/assets/kissing.mp4)
+![A person is sneering.](https://github.com/ChristophHoell/masterthesis_public/assets/sneering.mp4)
+
+We demonstrate that our method is capable of generating realistic facial motions from a textual description while maintaining good sequential coherence.
+
+
+![A person is yawning.](https://github.com/ChristophHoell/masterthesis_public/assets/yawning_diversity.mp4)
+
+We also demonstrate the non-deterministic behavior of our model with regards to the diversity in output for the same prompt.
