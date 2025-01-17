@@ -4,7 +4,7 @@ import torch
 from loguru import logger
 from argparse import ArgumentParser, Namespace
 
-from render.render_head_mdm import Render_Head_MDM
+from render.render_Model import Render_Model
 
 def parse_args():
     parser = ArgumentParser()
@@ -33,7 +33,7 @@ def load_renderer(args, out_path):
 
     os.makedirs(cfg.output_path, exist_ok = True)
 
-    renderer = Render_Head_MDM(cfg)
+    renderer = Render_Model(cfg)
     return renderer
 
 def main(args):

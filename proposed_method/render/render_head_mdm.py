@@ -36,7 +36,7 @@ import pickle
 """
 
 
-class Render_Head_MDM(object):
+class Render_Model(object):
     def __init__(self, config, device = "cuda:0"):
         torch.set_default_tensor_type(torch.FloatTensor)
         torch.set_default_dtype(torch.float)
@@ -293,7 +293,7 @@ def parse_args():
 
 def main():
     config = parse_args()
-    renderer = Render_Head_MDM(config)
+    renderer = Render_Model(config)
 
     if config.data_format == 'mdm':
         data = torch.load(os.path.join(config.input_path, "results.frame"))

@@ -13,7 +13,7 @@ from utils import dist_util
 from utils import logger as loss_logger
 from data_loaders.get_data import get_dataset_loader
 from train.train_platforms import TensorboardPlatform
-from render.render_head_mdm import Render_Head_MDM
+from render.render_Model import Render_Model
 
 class SimpleAutoencoder(nn.Module):
     def __init__(self, args):
@@ -245,7 +245,7 @@ def load_renderer(args, out_path):
 
     os.makedirs(cfg.output_path, exist_ok = True)
 
-    renderer = Render_Head_MDM(cfg)
+    renderer = Render_Model(cfg)
     return renderer
 
 

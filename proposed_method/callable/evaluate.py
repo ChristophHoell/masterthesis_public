@@ -18,7 +18,7 @@ from data_loaders.get_data import get_dataset_loader
 from data_loaders.utils.tensors import collate
 from utils.metrics import *
 
-from model.final_model import Head_MDM
+from model.final_model import Model
 #from scripts.train_compression_model import SimpleAutoencoder
 
 def evaluate_rmse(name, gt_motion, sample_motion, f):
@@ -343,7 +343,7 @@ if __name__ == "__main__":
 
     model_args = get_model_args(args, gt_loader.dataset)
     model_args.device = dist_util.dev()
-    model = Head_MDM(model_args)
+    model = Model(model_args)
 
     state_dict = torch.load(args.model_path, map_location = "cpu")
     load_model_wo_clip(model, state_dict)

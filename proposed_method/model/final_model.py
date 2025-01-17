@@ -63,9 +63,9 @@ def masked_l2(a, b, mask):
     mse_loss_val = loss / non_zero_elements
     return mse_loss_val
 
-class Head_MDM(nn.Module):
+class Model(nn.Module):
     def __init__(self, args):
-        super(Head_MDM, self).__init__()
+        super(Model, self).__init__()
         self.device = args.device
 
         self.input_features = args.input_features

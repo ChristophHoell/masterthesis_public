@@ -10,8 +10,8 @@ from data_loaders.get_data import get_dataset_loader
 from utils.model_util import get_model_args
 from train.train_platforms import ClearmlPlatform, TensorboardPlatform, NoPlatform  # required for the eval operation
 
-#from model.head_mdm_new import Head_MDM
-from model.final_model import Head_MDM
+#from model.Model_new import Model
+from model.final_model import Model
 from train.training_loop import TrainLoop
 
 def main():
@@ -47,7 +47,7 @@ def main():
     model_args = get_model_args(args, data.dataset)
     model_args.device = dist_util.dev()
     
-    model = Head_MDM(model_args)
+    model = Model(model_args)
 
     model.to(dist_util.dev())
 

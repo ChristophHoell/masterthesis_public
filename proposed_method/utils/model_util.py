@@ -1,6 +1,6 @@
 
 from loguru import logger
-from model.head_mdm import Head_MDM
+from model.Model import Model
 from argparse import Namespace
 
 def load_model_wo_clip(model, state_dict):

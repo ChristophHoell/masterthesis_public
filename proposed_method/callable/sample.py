@@ -17,9 +17,9 @@ from utils.model_util import get_model_args, load_model_wo_clip
 from utils import dist_util
 from data_loaders.get_data import get_dataset_loader
 from data_loaders.utils.tensors import collate
-from render.render_head_mdm import Render_Head_MDM
-#from model.head_mdm_new import Head_MDM
-from model.final_model import Head_MDM
+from render.render_Model import Render_Model
+#from model.Model_new import Model
+from model.final_model import Model
 
 def main():
     args = generate_args()
@@ -87,7 +87,7 @@ def main():
 
     model_args = get_model_args(args, data.dataset)
     model_args.device = dist_util.dev()
-    model = Head_MDM(model_args)
+    model = Model(model_args)
 
     state_dict = torch.load(args.model_path, map_location = "cpu")
     load_model_wo_clip(model, state_dict)
@@ -170,7 +170,7 @@ def load_renderer(args, out_path):
 
     os.makedirs(cfg.output_path, exist_ok = True)
 
-    renderer = Render_Head_MDM(cfg)
+    renderer = Render_Model(cfg)
     return renderer
 
 if __name__ == "__main__":
