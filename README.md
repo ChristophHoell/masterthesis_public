@@ -31,4 +31,4 @@ We demonstrate that our method is capable of generating realistic facial motions
 
 We also demonstrate the non-deterministic behavior of our model with regards to the diversity in output for the same prompt.
 
-For more information we refer to the written [**Thesis**](./assets/Thesis.pdf) and the [**Presentation**](./assets/Presentation.pptx).
+For more information we refer to the written [**Thesis**](https://github.com/ChristophHoell/masterthesis_public/assets/Thesis.pdf) and the [**Presentation**](https://github.com/ChristophHoell/masterthesis_public/assets/Presentation.pdf).
