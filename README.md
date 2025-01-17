@@ -21,14 +21,14 @@ python -m pip install git+https://github.com/openai/CLIP.git
 ## Proposed Method:
 Our Proposed method is a Transformer cVQVAE with the goal of generating a 3D facial animation solely from a textual description.
 
-![A person is kissing.](https://github.com/ChristophHoell/masterthesis_public/assets/kissing.gif)
-![A person is sneering.](https://github.com/ChristophHoell/masterthesis_public/assets/sneering.gif)
+![A person is kissing.](https://github.com/ChristophHoell/masterthesis_public/blob/main/assets/kissing.gif)
+![A person is sneering.](https://github.com/ChristophHoell/masterthesis_public/blob/main/assets/sneering.gif)
 
 We demonstrate that our method is capable of generating realistic facial motions from a textual description while maintaining good sequential coherence.
 
 
-![A person is yawning.](https://github.com/ChristophHoell/masterthesis_public/assets/yawning_diversity.gif)
+![A person is yawning.](https://github.com/ChristophHoell/masterthesis_public/blob/main/assets/yawning_diversity.gif)
 
 We also demonstrate the non-deterministic behavior of our model with regards to the diversity in output for the same prompt.
 
-For more information we refer to the written [**Thesis**](https://github.com/ChristophHoell/masterthesis_public/assets/Thesis.pdf) and the [**Presentation**](https://github.com/ChristophHoell/masterthesis_public/assets/Presentation.pdf).
+For more information we refer to the written [**Thesis**](https://github.com/ChristophHoell/masterthesis_public/blob/main/assets/Thesis.pdf) and the [**Presentation**](https://github.com/ChristophHoell/masterthesis_public/blob/main/assets/Presentation.pdf).
