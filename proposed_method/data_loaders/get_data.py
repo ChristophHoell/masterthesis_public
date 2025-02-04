@@ -1,3 +1,8 @@
+"""
+    Utility file,
+    Creates the dataset object and wraps it into the dataloader object for batch wise access to the data
+"""
+
 import torch
 import os
 from loguru import logger

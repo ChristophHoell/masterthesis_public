@@ -1,3 +1,8 @@
+"""
+    Script file
+    Combines the generated videos into one large grid of videos using ffmpeg
+"""
+
 import os
 from argparse import ArgumentParser
 from loguru import logger

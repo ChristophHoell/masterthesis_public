@@ -1,3 +1,8 @@
+"""
+    Adds the assigned action class as a subscript to each frame of the input video
+    Used in the presentation for demo purposes
+"""
+
 import os
 from loguru import logger
 from glob import glob

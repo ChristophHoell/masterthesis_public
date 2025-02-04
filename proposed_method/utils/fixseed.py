@@ -1,3 +1,6 @@
+"""
+    Defines a randomness seed to obtain deterministic results
+"""
 import numpy as np
 import torch
 import random

@@ -1,3 +1,11 @@
+"""
+    Script File
+    Trains a simple AutoEncoder as a "compression-model" with the goal of compressing the vertex data (and to be able to fully reconstruct afterwards)
+    Idea: compress motion data to reduce computational complexity for Fidelity in the Model Evaluation 
+
+    NOT USED IN THE END
+"""
+
 import os
 import torch
 import torch.nn as nn

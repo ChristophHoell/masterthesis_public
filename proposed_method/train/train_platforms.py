@@ -1,3 +1,7 @@
+"""
+    Defines the TrainPlatform Classes, used to report the loss (and other) metrics during the training
+"""
+
 import os
 
 class TrainPlatform:

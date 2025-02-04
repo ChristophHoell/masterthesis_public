@@ -1,3 +1,8 @@
+"""
+    Script file
+    Calculates the mean velocity of the vertices throughout the motion sequences
+"""
+
 import os
 import torch
 from loguru import logger

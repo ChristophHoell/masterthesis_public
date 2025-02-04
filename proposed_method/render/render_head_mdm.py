@@ -26,17 +26,17 @@ from render.renderer import Renderer
 from tqdm import tqdm
 import pickle
 
-"""
-    Config:
-        input_path: path where the .npy file is
-
-    Attributes to define:
-        device, principal_point, focal_length, R, T, image_size
-
-"""
-
 
 class Render_Model(object):
+    """
+        Config:
+            input_path: path where the .npy file is
+
+        Attributes to define:
+            device, principal_point, focal_length, R, T, image_size
+
+    """
+
     def __init__(self, config, device = "cuda:0"):
         torch.set_default_tensor_type(torch.FloatTensor)
         torch.set_default_dtype(torch.float)
@@ -72,6 +72,14 @@ class Render_Model(object):
         Path(self.config.output_path).mkdir(parents = True, exist_ok = True)
 
     def setup_renderer(self):
+        """
+            Performs the renderer setup
+            - Loads the 3D mesh object
+            - defines the rasterization settings
+            - places the lights such that the face is well lit
+            - Creates the rasterizer and renderer
+            - loads the vertices of the base-line face for later use
+        """
         mesh_file = self.config.mesh_file
 
         self.config.image_size = self.get_image_size()
@@ -118,6 +126,9 @@ class Render_Model(object):
     
 
     def render_shape(self, vertices, faces = None, white = True):
+        """
+            Renders the provided vertices in white or light-blue
+        """
         B = vertices.shape[0]
         V = vertices.shape[1]
 
@@ -141,6 +152,9 @@ class Render_Model(object):
 
 
     def __call__(self, flame_params, name):
+        """
+            Call for rendering of a motion sequence defined through flame-parameters
+        """
         if self.config.save_frames:
             os.makedirs(os.path.join(self.config.output_path, name))
 
@@ -156,6 +170,7 @@ class Render_Model(object):
 
         images = []
 
+        # Iterate through each frame of the sequence
         for i in tqdm(range(len(shapes))):
             if eyelid_params == None:
                 eye_param = None
@@ -176,12 +191,14 @@ class Render_Model(object):
                 eyelid_params = eye_param
             )
 
+            # Render the frame
             shape = self.render_shape(vertices, white = False)[0].cpu().numpy()
             frame_id = str(i).zfill(5)
 
             shape = (shape.transpose(1, 2, 0) * 255)[:, :, [2, 1, 0]]
             shape = np.minimum(np.maximum(shape, 0), 255).astype(np.uint8)
 
+            # Add the description text to the top left of the video 
             shape = cv2.putText(shape.copy(), name, (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0, (255, 0, 0), 1, cv2.LINE_AA)
 
             images.append(shape)
@@ -189,13 +206,17 @@ class Render_Model(object):
             if self.config.save_frames:
                 cv2.imwrite(f"{self.config.output_path}/{name}/{frame_id}.jpg", shape)
 
+        # Store the rendered Video
         out = cv2.VideoWriter(f"{self.config.output_path}/{name}.avi", cv2.VideoWriter_fourcc(*self.config.video_format), self.config.fps, self.get_image_size())
         for i in range(len(images)):
             out.write(images[i])
         out.release()
 
     def render_like_mica(self, data):
-
+        """
+            Renders the frame but emulates head-movement through movement of the camera (as done in the MICA Facial Tracking project)
+            Used to render the GT motions as MICA creates them for debug and demo purposes
+        """
         camera = PerspectiveCameras(
             device = self.device,
             principal_point = torch.tensor(data["camera"]["pp"]),
@@ -222,9 +243,13 @@ class Render_Model(object):
         return shape
 
     def render_vertices(self, vertex_offset, name, text):
+        """
+            Renders the provided sequence of vertices defined as vertex-offset to the baseline-face
+        """
+
         #R, _ = look_at_view_transform(dist = 2.0)       
         
-
+        # defines the video-write depending on the desired output video-format
         if self.config.video_format == "mp4v":
             out = cv2.VideoWriter(f"{self.config.output_path}/{name}.mp4", cv2.VideoWriter_fourcc(*self.config.video_format), self.config.fps, self.get_image_size())
         elif self.config.video_format == "DVIX":
@@ -233,6 +258,7 @@ class Render_Model(object):
             logger.error(f"Video Format [{self.config.video_format}] not supported, exiting...")
             exit(0)
 
+        # Iterate through the frames to render, add text and save the frames
         for i in range(len(vertex_offset)):
             offset = vertex_offset[i].unsqueeze(0).to(self.device)
             vertices = (self.base_vertices + offset)
@@ -295,6 +321,7 @@ def main():
     config = parse_args()
     renderer = Render_Model(config)
 
+    # Define slight differences in the rendering process depending on how the data was generated (Diffusion (MDM), MICA), MICA (turning), ...)
     if config.data_format == 'mdm':
         data = torch.load(os.path.join(config.input_path, "results.frame"))
 
@@ -339,6 +366,7 @@ def main():
                 if i > 1:
                     os.system(f"rm {config.output_path}{in_1}")
                 in_1 = out
+                
     elif config.data_format == "mica_processed":
         sequences = os.listdir(config.input_path)
 
@@ -359,7 +387,7 @@ def main():
                 renderer(data, sequence.replace(".frame", ""))   
             except:
                 pass
-     
+
     elif config.data_format == "mica_raw":
         frames = os.listdir(os.path.join(config.input_path, "checkpoint"))
 

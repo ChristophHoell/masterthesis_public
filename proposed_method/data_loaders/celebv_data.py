@@ -1,3 +1,7 @@
+"""
+    Dataset Class Definition
+"""
+
 import torch
 from torch.utils import data
 import os
@@ -9,7 +13,8 @@ import pickle
 
 from data_loaders.utils.get_opt import get_opt
 
-
+# Used to provide an index for a action tag
+# Required to enable filtering based on specific present actions
 label_to_idx = {
     "talk": 0,
     "head_wagging": 1,
@@ -51,6 +56,14 @@ label_to_idx = {
 }
 
 class CelebVData(data.Dataset):
+    """
+        Dataset Class Definition
+
+        Required Parameters:
+            opt_path:       Path to a opt.txt file defining the dataset parameters
+            split_file:     Defines which dataset split should be used
+            mode:           Defines the mode in which the data will be provided
+    """
     def __init__(self, opt_path, split_file, mode):
         self.opt = get_opt(opt_path, "cuda:0")
         self.mode = mode
@@ -69,6 +82,11 @@ class CelebVData(data.Dataset):
 
 
     def setup(self):
+        """
+            Performs the setup of the dataset
+            - Loads the facial region indication (for potential loss weighting)
+            - Loads the dataset mean and std
+        """
         with open(os.path.join(self.opt.data_root, "vertex_id_to_face_region.pkl"), "rb") as f:
             region_ids = pickle.load(f)
 
@@ -80,6 +98,11 @@ class CelebVData(data.Dataset):
         self.std = torch.load(os.path.join(self.opt.data_root, "std.data"))
 
     def prepare_data(self, names):
+        """
+            Prepares the data by iterating once though the dataset metadata (not the motions directly)
+            If desired, loads the entire dataset into RAM for faster access (and if the dataset is small enough)
+            Otherwise the motions will be loaded from disk at runtime
+        """
         data_dict = {}
         new_names = []
         video_ids = []
@@ -110,21 +133,25 @@ class CelebVData(data.Dataset):
 
                 text_data = []
 
+                # Extract the text-description for the sample
                 with open(os.path.join(self.opt.data_root, "actions", name + ".txt"), "r") as f:
                     for line in f.read().splitlines():
                         text_dict = {}
                         text_dict["caption"] = line.strip()
                         text_data.append(text_dict)
 
+                # Error handling for non-existent descirption
                 if len(text_data) == 0:
                     logger.error(f"Ignored sequence [{name}] for no corresponding annotation has been found")
                     continue
 
+                # Filtering for "talking" description
                 if self.opt.no_talking:
                     if any(["talking" in t["caption"] for t in text_data]):
                         logger.error(f"Skipped sequence [{name}] due to containing talking")
                         continue
 
+                # Filtering for "cutted" sequences
                 if self.opt.no_cuts:
                     if metadata["name"] in video_ids:
                         logger.error(f"Skipped sequence [{name}] due to being part of a cutted sequence")
@@ -132,6 +159,7 @@ class CelebVData(data.Dataset):
                     else:
                         video_ids.append(metadata["name"])
 
+                # Extract per frame assigned action tags
                 action = torch.zeros((metadata["length"], len(label_to_idx)))
                 last = 0
                 for k, v in metadata["timesteps"].items():
@@ -139,6 +167,7 @@ class CelebVData(data.Dataset):
                         action[last:k, label_to_idx[e]] = 1
                     last = k
 
+                # Filtering for "turning" action tags (turn, shake-head, ...)
                 if self.opt.no_turned_desc:
                     turned_desc_ids = [1, 2, 3, 4, 5]
                     for i in turned_desc_ids:
@@ -146,6 +175,7 @@ class CelebVData(data.Dataset):
                             logger.error(f"Skipped Sequence due to containing [{i}]")
                             continue
                     
+                # If desire, stores entire motion into RAM, else load at runtime
                 if self.load_mode == "memory":
                     motion_data = torch.load(os.path.join(self.opt.data_root, "motions_vertices", name + ".motion"))
                     #motion = self.prepare_motion_data(motion_data)
@@ -180,6 +210,9 @@ class CelebVData(data.Dataset):
         logger.info(f"Loaded Dataset, [{len(self.names_list)}] elements match requirements")
 
     def prepare_motion_data(self, motion_data):
+        """
+            Normalizes and reshapes the motion data to the correct dimensions (i.e. flatten the 5023x3 vertices to 15069)
+        """
         motion = motion_data["vertex_offset"]
         motion = (motion - self.mean) / self.std
         
@@ -202,6 +235,12 @@ class CelebVData(data.Dataset):
         return len(self.names_list)
 
     def __getitem__(self, idx):
+        """
+            Generator Callable, provides the data sample with index "idx"
+
+            Extracts the requried data, then processes it according to the "mode" definition
+            Zero-Pads the motion if it is too short 
+        """
         name = self.names_list[idx]
 
         data = self.data_dict[name]
@@ -233,6 +272,10 @@ class CelebVData(data.Dataset):
         return caption, action, random, motion, m_length
 
 class CelebVData_TextOnly(data.Dataset):
+    """
+        Dataset Class Definition for a dataset without a gt motion assigned to it
+        Necessary to have such a Dataset Object for the generation of new samples
+    """
     def __init__(self, opt_path, split_file):
         self.opt = get_opt(opt_path, "cuda:0")
 
@@ -245,6 +288,10 @@ class CelebVData_TextOnly(data.Dataset):
 
 
     def setup(self):
+        """
+            Loads the region ids
+            Loads the dataset mean and std
+        """
         with open(os.path.join(self.opt.data_root, "vertex_id_to_face_region.pkl"), "rb") as f:
             region_ids = pickle.load(f)
 
@@ -257,6 +304,9 @@ class CelebVData_TextOnly(data.Dataset):
         self.fixed_length = self.opt.max_seq_len
 
     def prepare_data(self, names):
+        """
+            Prepares the data by creating the dataset full of the description only entries
+        """
         data_dict = {}
         new_names = []
 
@@ -298,6 +348,9 @@ class CelebVData_TextOnly(data.Dataset):
         return len(self.names_list)
 
     def __getitem__(self, idx):
+        """
+            Generator Callable to obtain the description for the sample
+        """
         name = self.names_list[idx]
         data = self.data_dict[name]
 

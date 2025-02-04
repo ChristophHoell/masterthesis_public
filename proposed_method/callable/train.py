@@ -1,3 +1,49 @@
+"""
+    Trains a model with the specified arguments
+
+    Required Arguments:
+        --save_dir
+
+
+    Optional Arguments:
+        --cuda
+        --device
+        --seed
+        --batch_size
+
+        --data_dir
+        --split
+        --mode
+        --load_mode
+
+        --num_layers
+        --num_heads
+        --latent_dim
+        --activation
+        --dropout
+        --period
+        --d_emb
+        --num_embeddings
+        --d_temporal
+        --lambda_emb
+        --teacher_forcing
+        --ablation_use_style
+
+        --overwrite
+        --train_platform_type
+        --lr
+        --weight_decay
+        --lr_anneal_steps
+        --lr_step_size
+        --lr_step_reduction
+        --log_interval
+        --save_interval
+        --num_steps
+        --resume_checkpoint
+
+"""
+
+
 import os
 import json
 import torch

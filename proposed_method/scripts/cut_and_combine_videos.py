@@ -1,3 +1,9 @@
+"""
+    Script File
+    Takes specified frames (10, 20, ...) of multiple videos and combines them into one large image
+    Used for figure generation in the thesis (not used in the end)
+
+"""
 import os
 import cv2
 from loguru import logger
@@ -67,7 +73,6 @@ def main(args):
 
         images = []
 
-        continue
         for f in selected:
             img = cv2.imread(f)
             img = cv2.resize(img, (0,0), fx=0.25, fy=0.25)

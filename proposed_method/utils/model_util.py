@@ -1,4 +1,9 @@
+"""
+    Utility File
 
+    Enables the loading of the model (without the CLIP-weights)
+    Creates a Namespace Object for the necessary parameters of the model
+"""
 from loguru import logger
 from model.Model import Model
 from argparse import Namespace

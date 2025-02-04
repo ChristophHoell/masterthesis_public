@@ -1,12 +1,10 @@
-import copy
-import functools
+"""
+    Defines the Main Training Loop to train the different models
+"""
+
 import os
-import time
-from types import SimpleNamespace
-import numpy as np
 import torch.nn as nn
 
-import blobfile as bf
 import torch
 from torch.optim import AdamW
 from tqdm import tqdm
@@ -18,6 +16,12 @@ from loguru import logger as log
 
 
 class TrainLoop:
+    """
+        Main Training Loop
+        Maintains the model and optimizer objects and performs the forward + backward passes of the model
+        If desired updates the learning rate of the optimizer according to the defined arguments
+        Has possibility to load a model and optimizer from a checkpoint to continue the training later on
+    """
     def __init__(self, args, train_platform, model, data):
         self.args = args
         self.train_platform = train_platform
@@ -68,7 +72,7 @@ class TrainLoop:
 
         if resume_checkpoint:
             self.resume_step = parse_resume_step_from_filename(resume_checkpoint)
-            logger.info(f"loading model from checkpoint: {resume_checkpoint}...")
+            log.info(f"loading model from checkpoint: {resume_checkpoint}...")
             #self.model.load_state_dict(
             #    dist_util.load_state_dict(
             #        resume_checkpoint, map_location = dist_util.dev()
@@ -87,25 +91,32 @@ class TrainLoop:
 
         opt_checkpoint = os.path.join(os.path.dirname(main_checkpoint), f"opt{self.resume_step:09}.pt")
         if os.path.exists(opt_checkpoint):
-            logger.log(f"Loading Optimizer State from Checkpoint: {opt_checkpoint}")
+            log.log(f"Loading Optimizer State from Checkpoint: {opt_checkpoint}")
             state_dict = dist_util.load_state_dict(opt_checkpoint, map_location = dist_util.dev())
             self.opt.load_state_dict(state_dict)
 
     
     def run_loop(self):
+        """
+            Training Loop (called once by the "callable.train" script)
+        """
+        # Iterate through the defined number of epochs
         for epoch in range(self.num_epochs):
-            logger.info(f"Starting epoch [{epoch}]")
+            log.info(f"Starting epoch [{epoch}]")
 
+            # Iterate through the number of batches in one epoch
             for batch in tqdm(self.data):
                 if not (not self.lr_anneal_steps or self.step + self.resume_step < self.lr_anneal_steps):
                     break
 
+                # Runs the forward + backward, optimizer, lr-adaptation step for each batch
                 self.run_step(batch)
 
+                # Log to console if log-interval has been reached
                 if self.step % self.log_interval == 0:
                     for k,v in logger.get_current().dumpkvs().items():
                         if k == "loss":
-                            logger.info(f"Step [{self.step + self.resume_step}]: loss[{v:0.5f}]")
+                            log.info(f"Step [{self.step + self.resume_step}]: loss[{v:0.5f}]")
                         if k in ["step", "samples"] or "_q" in k:
                             continue
                         else:
@@ -116,9 +127,11 @@ class TrainLoop:
 
                 self.step += 1
 
+            # Epoch-stop condition upon reaching the desired amount of steps before updating the learning-rate 
             if not (not self.lr_anneal_steps or self.step + self.resume_step < self.lr_anneal_steps):
                 break
         
+        # Save model and optimizer if save-interval has been reached
         if (self.step - 1) % self.save_interval != 0:
             self.save()
 
@@ -135,6 +148,9 @@ class TrainLoop:
         self.log_step()
 
     def forward_backward(self, batch):
+        """
+            Forward and Backward pass of the model
+        """
         (text, action, motion, random, mask, length) = batch
 
         self.opt.zero_grad()
@@ -156,6 +172,7 @@ class TrainLoop:
             return
 
         elif self.lr_anneal_steps:
+            # lr-anneal-steps reduces the learning rate evenly throughout the whole training process by the (1 - frac_done) fraction of the remaining training steps
             frac_done = (self.step + self.resume_step) / self.lr_anneal_steps
             lr = self.lr * (1 - frac_done)
 
@@ -163,6 +180,7 @@ class TrainLoop:
                 param_group["lr"] = lr
 
         elif self.lr_step_size:
+            # LR step size reduces the lr after a fixed number of steps by a fixed value
             if (self.step + self.resume_step) % self.lr_step_size == 0:
                 for param_group in self.opt.param_groups:
                     param_group["lr"] = param_group["lr"] * self.lr_step_reduction
@@ -175,12 +193,15 @@ class TrainLoop:
         return f"{(self.step + self.resume_step):09d}.pt"
 
     def save(self):
+        """
+            Saves the Model and Optimizer weights (except the clip-weights in the model)
+        """
         state_dict = self.model.state_dict()
         clip_weights = [e for e in state_dict.keys() if e.startswith("clip_model.")]
         for e in clip_weights:
             del state_dict[e]
 
-        logger.log(f"Saving model...")
+        log.log(f"Saving model...")
         filename = self.ckpt_file_name()
 
         torch.save(state_dict, os.path.join(self.save_dir, f"model{filename}"))

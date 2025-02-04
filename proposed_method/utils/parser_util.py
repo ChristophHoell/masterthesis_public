@@ -1,3 +1,8 @@
+"""
+    Utility File
+    Defines all the different possible arguments
+"""
+
 from argparse import ArgumentParser
 import argparse
 import os
@@ -10,7 +15,7 @@ def parse_and_load_from_model(parser):
 
     add_data_options(parser)
     add_model_options(parser)
-    add_diffusion_options(parser)
+    #add_diffusion_options(parser)
 
     args = parser.parse_args()
     args_to_overwrite = []
@@ -174,14 +179,11 @@ def add_evaluation_options(parser):
     group = parser.add_argument_group('eval')
     group.add_argument("--model_path", required=True, type=str,
                        help="Path to model####.pt file to be sampled.")
-    group.add_argument("--eval_mode", default='debug_disk', choices=["debug", "debug_disk", "full", "full_disk"], type=str,
-                       help="wo_mm (t2m only) - 20 repetitions without multi-modality metric; "
-                            "mm_short (t2m only) - 5 repetitions with multi-modality metric; "
-                            "debug - short run, less accurate results."
-                            "full (a2m only) - 20 repetitions.")
-    group.add_argument("--guidance_param", default=2.5, type=float,
-                       help="For classifier-free sampling - specifies the s parameter, as defined in the paper.")
-    group.add_argument("--compression_model_path", default = "./eval/Compression_v1/model000003160.pt", type = str, help = "Path to the compression model to be used")
+    group.add_argument("--eval_mode", default='debug', choices=["debug", "debug_disk", "full", "full_disk"], type=str,
+                       help="   debug: very small evaluation to check functionality \
+                                debug_disk: very small evaluation with samples present on disk \
+                                full: Full evaluation with newly generated samples \
+                                full_disk: evaluation with samples on disk")
     group.add_argument("--filter_region_pickle", default = "./eval/vertex_id_to_face_region.pkl", type = str, help = "Path to the Pickle file containing a naming for the vertices")
 
 def train_args():
@@ -189,7 +191,7 @@ def train_args():
     add_base_options(parser)
     add_data_options(parser)
     add_model_options(parser)
-    add_diffusion_options(parser)
+    #add_diffusion_options(parser)
     add_training_options(parser)
     return parser.parse_args()
 

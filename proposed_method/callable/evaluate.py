@@ -1,3 +1,19 @@
+"""
+Evaluation Script for the final proposed model
+Required Arguments:
+    --model_path
+
+Optional Arguments:
+    --eval_mode
+    --filter_region_pickle
+
+    --cuda
+    --device
+    --seed
+    --batch_size
+"""
+
+
 import os
 import numpy as np
 import torch
@@ -21,7 +37,11 @@ from utils.metrics import *
 from model.final_model import Model
 #from scripts.train_compression_model import SimpleAutoencoder
 
+
 def evaluate_rmse(name, gt_motion, sample_motion, f):
+    """
+        Evaluates the generated sample with a ground-truth sample in terms of RMSE
+    """
     #print("================= Evaluating MSE ==================")
 
     mse = nn.MSELoss()
@@ -34,6 +54,9 @@ def evaluate_rmse(name, gt_motion, sample_motion, f):
     return loss.item()
 
 def evaluate_fid(name, gt_motion, sample_motion, f):
+    """
+        Evaluates the generated sample with a ground-truth sample in terms of Fidelity
+    """
     eval_dict = OrderedDict({})
 
     #print("================= Evaluating FID ===============")
@@ -51,6 +74,9 @@ def evaluate_fid(name, gt_motion, sample_motion, f):
 
 
 def evaluate_diversity(name, motion, diversity_times, f):
+    """
+        Evaluates the generated sample in terms of diversity (differences in randomly selected frames)
+    """
     diversity = calculate_diversity(motion, diversity_times)
 
     print(f"---> [{name}] - Diversity: {diversity:.4f}")
@@ -59,6 +85,9 @@ def evaluate_diversity(name, motion, diversity_times, f):
 
 
 def evaluate_l1_loss(name, gt_motion, sample_motion, f):
+    """
+        Evaluates the generated sample with a ground-truth sample in terms of MAE
+    """
     l1 = nn.L1Loss()
 
     loss = l1(gt_motion, sample_motion)
@@ -70,6 +99,9 @@ def evaluate_l1_loss(name, gt_motion, sample_motion, f):
 
 
 def evaluate_offset_to_base_face(name, base_face, sample_motion, f):
+    """
+        Evaluates the generated sample in comparison to the base-line-face
+    """
     l1 = nn.L1Loss()
     loss = l1(base_face, sample_motion)
 
@@ -80,7 +112,11 @@ def evaluate_offset_to_base_face(name, base_face, sample_motion, f):
 
 
 def evaluate(model, dataloaders, args, region_ids, base_face):
+    """
+        Main Evaluation Loop
+    """
     (gt_loader, eval_loader) = dataloaders
+    # Selects the Important (Frontal) vertices of the face to prevent dilution of the metrics
     base_face = select_vertices(gt_loader.dataset.normalize(base_face.unsqueeze(0).detach().cpu()), region_ids).repeat(len(gt_loader) * args.batch_size, 90, 1, 1).detach().cpu()
 
     all_metrics = OrderedDict({
@@ -178,7 +214,6 @@ def evaluate(model, dataloaders, args, region_ids, base_face):
                     all_metrics["FID"][key] += [item]
             """
 
-            
             for key, item in diversity_dict.items():
                 if key not in all_metrics["Diversity"]:
                     all_metrics["Diversity"][key] = [item]
@@ -215,6 +250,10 @@ def evaluate(model, dataloaders, args, region_ids, base_face):
     return mean_dict
 
 def generate_samples(model, dataloader, location, save_samples):
+    """
+        Iterates through the dataloader and generates the samples corresponding to the GT description
+        If the "save_samples" flag is set, the samples will be stored in "location"
+    """
     paths = []
 
     all_motions = []
@@ -251,6 +290,9 @@ def generate_samples(model, dataloader, location, save_samples):
     return res
 
 def select_vertices(motions, region_ids):
+    """
+        Filters the vertices to only the frontal facial regions to prevent dilution of the metrics
+    """
     selected_regions = ["eye", "mouth"]
 
     selected_vertices = []
@@ -262,12 +304,18 @@ def select_vertices(motions, region_ids):
     return motions[:, :, selected_vertices]
 
 def get_metric_statistics(values, replication_times):
+    """
+        Calculate the Mean, Std and confidence interval of the metrics through multiple evaluation iterations
+    """
     mean = np.mean(values, axis=0)
     std = np.std(values, axis=0)
     conf_interval = 1.96 * std / np.sqrt(replication_times)
     return mean, conf_interval
 
 def load_dataset(args, mode):
+    """
+        Generates a dataset with the "test" split
+    """
     cfg = Namespace()
     cfg.split = "test"
     cfg.mode = mode
@@ -280,6 +328,9 @@ def load_dataset(args, mode):
 
 
 def load_args(path):
+    """
+        Loads the arguments of the model
+    """
     model_args = Namespace()
 
     args_path = os.path.join(os.path.dirname(path), "args.json")

@@ -30,7 +30,7 @@ def encode_text(raw_text, clip_model):
     assert context_length < default_context_length
 
     texts = clip.tokenize(raw_text, context_length = context_length, truncate = True)
-    print(textts)
+    print(texts)
     zero_pad = torch.zeros([texts.shape[0], default_context_length - context_length], dtype = texts.dtype, device = texts.device)
     texts = torch.cat([texts, zero_pad], dim=1)
 

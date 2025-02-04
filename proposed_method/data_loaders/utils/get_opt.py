@@ -1,3 +1,8 @@
+"""
+    Utility file
+    parses the data stored in the dataset opt.txt file
+"""
+
 import os
 from argparse import Namespace
 import re

@@ -1,3 +1,6 @@
+"""
+    Old (mdm-only) implementation of the renderer
+"""
 import os
 from pathlib import Path
 import cv2

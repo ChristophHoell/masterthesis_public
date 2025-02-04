@@ -1,3 +1,7 @@
+"""
+    Utility File
+    Defines the collate functions that is used to process a dict of dataset samples into a batch for the dataloader
+"""
 import torch
 from torch.utils import data
 import os
@@ -28,6 +32,13 @@ def gt_collate(batch):
     return collate(batch)
 
 def collate(batch):
+    """
+        Collates the data dict into one batch
+        - Combines the motions (of potentially different lengths) to one tensor of the same length through zero padding
+        - Creates the lenth tensor indicating the original (unpadded) length for each sample
+        - Creates a temporal mask according to the length (used to zero the loss of the padded frames)
+        - combines the "sample unique randomness" into one tensor
+    """
     not_none_batches = [b for b in batch if b is not None]
 
     data_batch = [b["inp"] for b in not_none_batches]

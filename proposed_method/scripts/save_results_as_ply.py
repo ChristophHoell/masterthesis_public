@@ -1,8 +1,12 @@
+"""
+    Script File
+    Processes the "results.frame" file into .ply meshes
+    Creates one folder for each motion sequence containing the numbered frames as .ply mesh
+"""
+
 import os
-from loguru import logger
 import torch
 from argparse import ArgumentParser
-import numpy as np
 import trimesh
 from pytorch3d.io import load_obj
 
@@ -36,15 +40,6 @@ def main(args):
             mesh = mesh.numpy()
             out_path = os.path.join(args.output_path, f"{name}_{i}", f"{str(j).zfill(4)}.ply")
             trimesh.Trimesh(faces = faces, vertices = mesh, process = False).export(out_path, encoding = "ascii")
-
-
-
-
-
-
-
-
-
 
 
 def parse_args():

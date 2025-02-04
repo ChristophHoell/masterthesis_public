@@ -1,7 +1,25 @@
-# This code is based on https://github.com/openai/guided-diffusion
 """
-Generate a large batch of image samples from a model and save them as a large
-numpy array. This can be used to produce samples for FID evaluation.
+    Generates (and renders if desired) samples from one or more text-prompts
+
+    Required Arguments:
+        --model_path
+        
+        --input_text / --text_prompt
+
+
+    Optional Arguments:
+        --cuda
+        --device
+        --seed
+        --batch_size
+        
+        --output_dir
+        --num_repetitions
+        --use_fixseed
+        --use_batched_sampling
+        --render_sample
+
+        --motion_length
 """
 import os
 import numpy as np
@@ -152,6 +170,9 @@ def load_dataset(args):
     return data
 
 def load_renderer(args, out_path):
+    """
+        Creates a renderer Class Object to render the created samples
+    """
     cfg = SimpleNamespace()
     
     cfg.image_size = 1024

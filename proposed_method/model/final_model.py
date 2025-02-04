@@ -1,3 +1,7 @@
+"""
+    Final Model implementation
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -64,6 +68,12 @@ def masked_l2(a, b, mask):
     return mse_loss_val
 
 class Model(nn.Module):
+    """
+        Model Definition to create facial animations from textual description using transformer and a cVQVAE
+
+        Required Parameters
+            args: Namespace Object containing the model parameters
+    """
     def __init__(self, args):
         super(Model, self).__init__()
         self.device = args.device
@@ -169,6 +179,8 @@ class Model(nn.Module):
             vertice:    Ground Truth output                     [bs, seqlen, V*3] = [bs, seqlen, 15069]     # Currently [bs, V*3, seqlen]
             random:    unique identifier for each sequence      [bs, d_random]
             teacher_forcing: (bool)
+
+            The forward pass during training can be performed either in an autoregressive or teacher-forced (standard) way
         """        
         # V4:
 
@@ -181,6 +193,8 @@ class Model(nn.Module):
 
             bs = len(text)
 
+            # IDEA: similar to "style" from FaceFormer, use randomness as "style"
+            # Else use a default zeros-tensor
             if self.ablation_use_style:
                 vertice_emb = self.emb_obj(random).unsqueeze(1)
             else:
@@ -209,6 +223,7 @@ class Model(nn.Module):
             tgt_mask = self.biased_mask[:, :vertice_input.shape[1], :vertice_input.shape[1]].clone().repeat(bs, 1, 1).detach().to(self.device)
             memory_mask = enc_dec_mask(self.device, vertice_input.shape[1], hidden_states.shape[1])
             
+            # Run Transformer decoder with the shifted GT, the text-embedding as memory, a target-mask (to put more weight on more recent sequence elements) and a memory mask to enforce alignment
             vertice_out = self.transformer_decoder(vertice_input, hidden_states, tgt_mask = tgt_mask, memory_mask = memory_mask)
             vertice_out = self.output_process(vertice_out)
 
@@ -219,6 +234,7 @@ class Model(nn.Module):
             return losses
 
         else:
+            # Autoregressive Implementation of the same model
             losses = {}
             action = action.to(self.device)
             vertice = vertice.permute(0, 2, 1).to(self.device)
@@ -242,6 +258,7 @@ class Model(nn.Module):
             emb = self.embedding_process(emb_text)
             hidden_states = emb
 
+            # Autoregressive requires calling the model multiple times
             for i in range(self.max_seq_len):
                 if i == 0:
                     vertice_input = self.PPE(style_emb)
@@ -262,11 +279,10 @@ class Model(nn.Module):
 
             return losses
 
-
-
-
-
     def predict(self, text, random):
+        """
+            The sample generation can only be performed autoregressively
+        """
         
         # V4:
         random = random.to(self.device)
@@ -286,6 +302,7 @@ class Model(nn.Module):
         emb = self.embedding_process(emb_text)
         hidden_states = emb
 
+        # Sampling must be done autoregressively, as no GT can be shifted and provided as input
         for i in tqdm(range(self.max_seq_len)):
             if i == 0:
                 vertice_input = self.PPE(style_emb)
@@ -323,6 +340,14 @@ class PeriodicPositionalEncoding(nn.Module):
         return self.dropout(x)
 
 class ConditionalVQVAE(nn.Module):
+    """
+        cVQVAE Class
+        Arguments:
+            input_dim:      defines the dimension of the input sample
+            embedding_dim:  defines the size of the embedding (after the encoding)
+            num_embeddings: defines the number of embeddings in the Codebook
+            noise_dim:      defines the size of the condition "noise"
+    """
     def __init__(self, input_dim, embedding_dim, num_embeddings, output_dim, noise_dim):
         super(ConditionalVQVAE, self).__init__()
         
@@ -356,6 +381,12 @@ class ConditionalVQVAE(nn.Module):
         return x_recon, vq_loss
 
 class VQEmbedding(nn.Module):
+    """
+        Codebook Definition
+        Extracts for a provided sample the nearest entry of the codebook
+        Calculates the loss of the Codebook with a split of 75/25 assigned to the codebook-entry and the encoder
+        Returns the extracted sample, loss and index of the sample
+    """
     def __init__(self, num_embeddings, embedding_dim):
         super(VQEmbedding, self).__init__()
 
